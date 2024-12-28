@@ -1,0 +1,29 @@
+.app {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.input-area {
+  margin-bottom: 20px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.todo-item.completed {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.todo-item button {
+  margin-left: auto;
+}

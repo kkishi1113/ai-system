@@ -2,6 +2,7 @@
 import React from "react";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Navigation } from "@/components/Navigation";
 
 export const metadata = {
   title: "AI Task System",
@@ -15,8 +16,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body>
-        <Providers>{children}</Providers>
+      <body className="pb-16">
+        <Providers>
+          {children}
+          <Navigation />
+        </Providers>
       </body>
     </html>
   );
