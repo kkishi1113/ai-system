@@ -1,50 +1,5 @@
 import { NextResponse } from "next/server";
-import axios from "axios";
-
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-
-async function callAI(apiKey: string, input: string): Promise<string> {
-  try {
-    const response = await axios.post(
-      `${GEMINI_API_URL}?key=${apiKey}`,
-      {
-        contents: [
-          {
-            parts: [{ text: input }],
-          },
-        ],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    // デバッグ用のログ出力
-    console.log("Full API Response:", JSON.stringify(response.data, null, 2));
-
-    // レスポンス構造を安全に確認
-    if (
-      response.data &&
-      response.data.candidates &&
-      response.data.candidates[0] &&
-      response.data.candidates[0].content &&
-      response.data.candidates[0].content.parts &&
-      response.data.candidates[0].content.parts[0] &&
-      response.data.candidates[0].content.parts[0].text
-    ) {
-      return response.data.candidates[0].content.parts[0].text;
-    }
-
-    // レスポンス構造が期待と異なる場合
-    throw new Error("予期せぬAPIレスポンス形式");
-  } catch (error) {
-    console.error("Gemini AI API呼び出しエラー:", error);
-    throw new Error("AIサービスとの通信に失敗しました");
-  }
-}
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(req: Request) {
   const { theme } = await req.json();
@@ -57,6 +12,12 @@ export async function POST(req: Request) {
     );
   }
 
+  // GoogleGenerativeAIインスタンスを作成
+  const genAI = new GoogleGenerativeAI(apiKey);
+
+  // モデルを初期化
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
   const logs: string[] = [];
   let currentInput = theme;
   let thresholdMet = false;
@@ -66,11 +27,13 @@ export async function POST(req: Request) {
   while (!thresholdMet && iterationCount < MAX_ITERATIONS) {
     try {
       // Step 1: AI-001に送信
-      const ai1Output = await callAI(apiKey, currentInput);
+      const ai1Result = await model.generateContent(currentInput);
+      const ai1Output = ai1Result.response.text();
       logs.push(`AI-001: ${ai1Output}`);
 
       // Step 2: AI-002に送信して評価
-      const ai2Output = await callAI(apiKey, ai1Output);
+      const ai2Result = await model.generateContent(ai1Output);
+      const ai2Output = ai2Result.response.text();
       logs.push(`AI-002: ${ai2Output}`);
 
       // 評価基準（仮実装）
