@@ -1,10 +1,12 @@
+"use client";
+
 import React, { useState } from "react";
 
 type ThemeInputProps = {
   onSubmit: (theme: string) => void;
 };
 
-const ThemeInput: React.FC<ThemeInputProps> = ({ onSubmit }) => {
+export default function ThemeInput({ onSubmit }: ThemeInputProps) {
   const [theme, setTheme] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,6 +30,4 @@ const ThemeInput: React.FC<ThemeInputProps> = ({ onSubmit }) => {
       </button>
     </form>
   );
-};
-
-export default ThemeInput;
+}
