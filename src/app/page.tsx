@@ -25,7 +25,8 @@ export default function Home() {
       setIsThinking(true);
       // Simulate AI thinking process delay
       setTimeout(() => {
-        setResponse(JSON.stringify(res.data, null, 2));
+        // setResponse(JSON.stringify(res.data, null, 2));
+        setResponse(res.data.logs);
         setIsThinking(false);
       }, 2000);
     } catch (err) {

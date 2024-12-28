@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   let currentInput = theme;
   let thresholdMet = false;
   let iterationCount = 0;
-  const MAX_ITERATIONS = 5;
+  const MAX_ITERATIONS = 3;
 
   while (!thresholdMet && iterationCount < MAX_ITERATIONS) {
     try {
@@ -30,11 +30,17 @@ export async function POST(req: Request) {
       const ai1Result = await model.generateContent(currentInput);
       const ai1Output = ai1Result.response.text();
       logs.push(`AI-001: ${ai1Output}`);
+      logs.push(
+        "--------------------------------------------------------------"
+      );
 
       // Step 2: AI-002に送信して評価
       const ai2Result = await model.generateContent(ai1Output);
       const ai2Output = ai2Result.response.text();
       logs.push(`AI-002: ${ai2Output}`);
+      logs.push(
+        "--------------------------------------------------------------"
+      );
 
       // 評価基準（仮実装）
       thresholdMet = ai2Output.includes("閾値を超えました");
@@ -42,6 +48,7 @@ export async function POST(req: Request) {
       // 次ループの入力更新
       currentInput = ai2Output;
       iterationCount++;
+      console.log(iterationCount);
     } catch (error) {
       logs.push(
         `エラー発生: ${error instanceof Error ? error.message : "不明なエラー"}`
