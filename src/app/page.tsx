@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import axios from "axios";
-import { Loader2 } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
-import { aaa } from "../../res";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [theme, setTheme] = useState("");
@@ -22,69 +25,89 @@ export default function Home() {
 
     try {
       const res = await axios.post("/api/ai-loop", { theme });
-      setResponse(res.data.logs); // Markdownをそのまま設定
+      setResponse(res.data.logs);
       console.log(
-        res.data.logs.map((r) => r.replace(/`/g, "\\`").replace(/"/g, "`"))
+        res.data.logs.map((r: string) =>
+          r.replace(/`/g, "\\`").replace(/"/g, "`")
+        )
       );
-    } catch (err) {
-      setError(err.response?.data?.error || "何らかのエラーが発生しました。");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "エラーが発生しました。");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="p-8 space-y-4">
-      <h1 className="text-2xl font-bold">Gemini AI 会話ログ</h1>
+    <div className="container mx-auto p-4 max-w-4xl min-h-screen">
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl">Gemini AI 会話ログ</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <Input
+              type="text"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              placeholder="テーマを入力してください"
+              className="flex-1"
+              disabled={isLoading}
+            />
+            <Button type="submit" disabled={isLoading || !theme.trim()}>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              <span className="ml-2 hidden sm:inline">送信</span>
+            </Button>
+          </form>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-          placeholder="テーマを入力してください"
-          className="border rounded p-2 w-full"
-          disabled={isLoading}
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white p-2 rounded"
-          disabled={isLoading}
-        >
-          送信
-        </button>
-      </form>
+          {isLoading && (
+            <Card className="bg-muted/50">
+              <CardContent className="flex items-center justify-center p-4">
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span>応答を生成中...</span>
+              </CardContent>
+            </Card>
+          )}
 
-      {isLoading && (
-        <div className="p-4 border rounded bg-yellow-100 flex items-center">
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-          <span>Processing...</span>
-        </div>
-      )}
+          {error && (
+            <Card className="border-destructive">
+              <CardContent className="p-4 text-destructive">
+                <h2 className="font-semibold mb-2">エラー</h2>
+                <p>{error}</p>
+              </CardContent>
+            </Card>
+          )}
 
-      {response && (
-        <div>
-          <h2 className="text-lg font-semibold">AIからの応答:</h2>
-          {response.map((text, index) => (
-            <div key={index} className="p-4 border rounded bg-gray-100 mb-4">
-              <ReactMarkdown
-                className="prose"
-                rehypePlugins={[rehypeRaw]}
-                remarkPlugins={[remarkGfm]}
-              >
-                {text}
-              </ReactMarkdown>
+          {response && (
+            <div className="space-y-4">
+              {response.map((text, index) => (
+                <Card
+                  key={index}
+                  className={cn(
+                    "transition-all duration-200",
+                    index === response.length - 1 &&
+                      "animate-in fade-in-0 slide-in-from-bottom-4"
+                  )}
+                >
+                  <CardContent className="p-4">
+                    <ReactMarkdown
+                      className="prose prose-sm max-w-none dark:prose-invert"
+                      rehypePlugins={[rehypeRaw]}
+                      remarkPlugins={[remarkGfm]}
+                    >
+                      {text}
+                    </ReactMarkdown>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-
-      {error && (
-        <div className="p-4 border rounded bg-red-100">
-          <h2 className="text-lg font-semibold">エラー:</h2>
-          <p>{error}</p>
-        </div>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
