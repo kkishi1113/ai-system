@@ -1,0 +1,31 @@
+project_name: AI Task System
+version: 0.1.0
+last_updated: 2024-07-11
+implementation_context:
+  ai_integration:
+    library: "@google/generative-ai"
+    model: "gemini-1.5-flash"
+    interaction_pattern:
+      - two_step_ai_conversation
+      - iterative_evaluation
+  
+  key_features:
+    - dynamic_theme_processing
+    - max_iteration_limit
+    - error_handling
+    - logging_mechanism
+
+  technical_details:
+    framework: Next.js
+    runtime_environment: Server-side API Route
+    state_management: Client-side React State
+
+  environment_requirements:
+    - GEMINI_AI_KEY: Required in .env.local
+    - Node.js version: >=18
+    - Next.js version: 15.x
+
+  development_notes:
+    - Implemented generative AI interaction
+    - Added threshold-based conversation termination
+    - Supports flexible theme-based AI conversations 
